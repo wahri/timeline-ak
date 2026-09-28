@@ -57,11 +57,19 @@ RUN apk add --no-cache \
 # Ambil binary Composer resmi
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Konfigurasi PHP Production
+# Konfigurasi PHP Production & OPcache
 RUN cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
     && sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 64M/g' "$PHP_INI_DIR/php.ini" \
     && sed -i 's/post_max_size = 8M/post_max_size = 64M/g' "$PHP_INI_DIR/php.ini" \
-    && sed -i 's/memory_limit = 128M/memory_limit = 256M/g' "$PHP_INI_DIR/php.ini"
+    && sed -i 's/memory_limit = 128M/memory_limit = 256M/g' "$PHP_INI_DIR/php.ini" \
+    && { \
+        echo 'opcache.enable=1'; \
+        echo 'opcache.enable_cli=0'; \
+        echo 'opcache.memory_consumption=128'; \
+        echo 'opcache.interned_strings_buffer=16'; \
+        echo 'opcache.max_accelerated_files=10000'; \
+        echo 'opcache.validate_timestamps=0'; \
+    } > "$PHP_INI_DIR/conf.d/docker-php-ext-opcache.ini"
 
 WORKDIR /var/www/html
 
@@ -75,8 +83,8 @@ COPY . .
 # Salin compiled assets hasil build dari frontend-builder
 COPY --from=frontend-builder /app/public/build ./public/build
 
-# Generate autoload teroptimasi untuk production
-RUN composer dump-autoload --optimize --no-dev
+# Generate autoload teroptimasi untuk production tanpa memicu runtime artisan scripts
+RUN composer dump-autoload --optimize --no-dev --no-scripts
 
 # Salin konfigurasi Nginx, Supervisord, dan Entrypoint
 COPY docker/nginx.conf /etc/nginx/http.d/default.conf
@@ -91,8 +99,12 @@ RUN tr -d '\r' < /usr/local/bin/entrypoint.sh > /usr/local/bin/entrypoint_unix.s
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Port default yang dideteksi oleh Coolify Traefik
+# Port default yang dilayani oleh Nginx
 EXPOSE 80
+
+# Healthcheck bawaan Laravel 11/12 via endpoint /up
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+    CMD curl -f http://127.0.0.1/up || exit 1
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

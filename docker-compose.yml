@@ -1,0 +1,60 @@
+name: timeline-apotek-keluarga
+
+services:
+  timeline-ak:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: timeline_ak_app
+    restart: unless-stopped
+    ports:
+      # ========================================================================
+      # PORT UNTUK TUNNEL (Cloudflare Tunnel, Ngrok, dsb.)
+      # Host Port : 4040 (Bisa disesuaikan via variabel APP_PORT di Coolify / .env)
+      # Container Port : 80 (Nginx internal)
+      # Arahkan Tunnel ke: http://localhost:4040 atau http://127.0.0.1:4040
+      # ========================================================================
+      - "${APP_PORT:-4040}:80"
+    environment:
+      - APP_NAME=${APP_NAME:-Timeline Apotek Keluarga}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY:-base64:pFgrTBy7WOrkSMUHhiw0d3BZ0CkgVj1+L+FfVREV/88=}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:-https://timeline.apotekkeluarga.id}
+      - APP_TIMEZONE=${APP_TIMEZONE:-Asia/Jakarta}
+      - LOG_CHANNEL=${LOG_CHANNEL:-daily}
+      - LOG_LEVEL=${LOG_LEVEL:-error}
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=${DB_HOST:-kgmk7g5eq0iqsz0ddoyutha3}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE:-timeline_ak}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-wyn8pJ5M3pqR6ORVX348P3LxVpgxycRrShJl4gpH0cyt7uAP9nUGwRJHE1dURzmP}
+      - SESSION_DRIVER=${SESSION_DRIVER:-database}
+      - CACHE_STORE=${CACHE_STORE:-database}
+      - QUEUE_CONNECTION=${QUEUE_CONNECTION:-database}
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-true}
+      - SEED_IF_EMPTY=${SEED_IF_EMPTY:-true}
+    volumes:
+      # Data persisten agar file upload, file storage, dan log tidak hilang saat rebuild
+      - timeline_ak_storage:/var/www/html/storage
+      - timeline_ak_cache:/var/www/html/bootstrap/cache
+    networks:
+      - coolify
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1/up || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  timeline_ak_storage:
+    driver: local
+  timeline_ak_cache:
+    driver: local
+
+networks:
+  # Network bawaan Coolify agar container aplikasi dapat mengakses database (DB_HOST=kgmk7g5eq0iqsz0ddoyutha3)
+  coolify:
+    external: true
