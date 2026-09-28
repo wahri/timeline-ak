@@ -1,0 +1,32 @@
+name: timeline-ak-local
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: timeline_ak_local_app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-4040}:80"
+    environment:
+      - APP_NAME=Timeline Apotek Keluarga (Local)
+      - APP_ENV=local
+      - APP_KEY=base64:pFgrTBy7WOrkSMUHhiw0d3BZ0CkgVj1+L+FfVREV/88=
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:4040
+      - APP_TIMEZONE=Asia/Jakarta
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/var/www/html/database/database.sqlite
+      - SESSION_DRIVER=file
+      - CACHE_STORE=file
+      - QUEUE_CONNECTION=sync
+      - RUN_MIGRATIONS=true
+      - SEED_IF_EMPTY=true
+    volumes:
+      - local_storage:/var/www/html/storage
+      - local_db:/var/www/html/database
+
+volumes:
+  local_storage:
+  local_db:

@@ -96,3 +96,13 @@ Sistem memiliki dua bagian utama:
   - Pembuatan file `.dockerignore` untuk efisiensi build
   - Panduan deploy step-by-step di Coolify (GitHub Integration, Environment Variables, Database, Persistent Storage)
 
+- [x] **Fase 12: Konfigurasi Docker Compose, Port Mapping untuk Tunnel, & Optimasi Produksi Coolify** <!-- id: 11 -->
+  - Pembuatan `docker-compose.yml` resmi untuk deployment Coolify dengan network eksternal `coolify` dan volume persisten.
+  - Alokasi port publik tunnel: Port Host `4040` dialihkan ke Port Container `80` (`${APP_PORT:-4040}:80`), siap diarahkan oleh Cloudflare Tunnel (`localhost:4040`).
+  - Pembuatan `docker-compose.local.yml` untuk pengujian mandiri di komputer lokal (SQLite).
+  - Penambahan `$middleware->trustProxies(at: '*')` pada `bootstrap/app.php` untuk integrasi HTTPS reverse proxy / Cloudflare Tunnel tanpa loop redirect.
+  - Pembaruan `docker/nginx.conf` dengan FastCGI HTTPS mapping, Gzip compression, dan header proxy forwarding.
+  - Pembaruan `docker/entrypoint.sh` dengan database health check retry loop, auto-seeder jika database kosong, dan kompilasi cache produksi.
+  - Penambahan health check container via endpoint Laravel 11/12 `/up`.
+  - Pembaruan dokumentasi panduan deploy lengkap di `README.md`.
+
