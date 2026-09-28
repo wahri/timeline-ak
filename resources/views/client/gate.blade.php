@@ -87,9 +87,6 @@
                 <span class="inline-flex items-center gap-1.5 text-slate-400">
                     <i class="fa-solid fa-shield-halved text-brand-600"></i> Terenkripsi & Dilindungi
                 </span>
-                <span class="bg-brand-50 text-brand-700 font-mono text-[11px] px-2 py-0.5 rounded-md border border-brand-200">
-                    Pass: {{ $setting->client_password }}
-                </span>
             </div>
         </div>
 
