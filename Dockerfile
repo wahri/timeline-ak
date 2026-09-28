@@ -16,7 +16,7 @@ RUN npm run build
 # ==========================================
 FROM php:8.3-fpm-alpine
 
-# Install sistem dependensi & librari ekstensi PHP
+# Install sistem dependensi runtime & build dependensi PHP
 RUN apk add --no-cache \
     nginx \
     supervisor \
@@ -24,12 +24,21 @@ RUN apk add --no-cache \
     zip \
     unzip \
     bash \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
+    icu-libs \
+    oniguruma \
+    sqlite-libs \
+    && apk add --no-cache --virtual .build-deps \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
     libzip-dev \
     icu-dev \
     oniguruma-dev \
+    sqlite-dev \
     linux-headers \
     $PHPIZE_DEPS \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -43,7 +52,7 @@ RUN apk add --no-cache \
         gd \
         opcache \
         pcntl \
-    && apk del $PHPIZE_DEPS
+    && apk del .build-deps
 
 # Ambil binary Composer resmi
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
