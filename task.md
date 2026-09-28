@@ -88,4 +88,11 @@ Sistem memiliki dua bagian utama:
   - Penyesuaian `target_completion_date` proyek pada `ProjectSetting` menjadi 60 hari ke depan (November 2026) untuk mengakomodasi fase stabilisasi dan penyelesaian modul lanjutan.
   - Verifikasi: Overdue task = 0 (tidak ada task yang overdue).
   - Pengujian otomatis pada `MonitoringSystemTest.php` lulus 100% (16 tests, 72 assertions).
+- [x] **Fase 11: Dockerization & Konfigurasi Deployment Coolify** <!-- id: 10 -->
+  - Pembuatan konfigurasi Nginx container (`docker/nginx.conf`)
+  - Pembuatan konfigurasi Process Manager Supervisor (`docker/supervisord.conf`)
+  - Pembuatan script inisialisasi & startup container (`docker/entrypoint.sh`)
+  - Pembuatan multi-stage build production image (`Dockerfile`)
+  - Pembuatan file `.dockerignore` untuk efisiensi build
+  - Panduan deploy step-by-step di Coolify (GitHub Integration, Environment Variables, Database, Persistent Storage)
 
